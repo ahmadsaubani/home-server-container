@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  pihole:
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      #- "80:8080"
+      - "8081:8080"
+      - "443:443"
+    environment:
+      TZ: 'Asia/Jakarta'
+      WEBPASSWORD: 'your-password'
+      DNS1: 'dnscrypt-proxy#5053'
+      DNS2: '1.1.1.1'
+    volumes:
+      - './pihole/etc-pihole:/etc/pihole'
+      - './pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: yourrootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: ahmadsaubani
+      MYSQL_PASSWORD: youruserpassword
+    volumes:
+      - './mysql:/var/lib/mysql'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  postgresql:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: yourrootpassword
+      POSTGRES_USER: root
+      POSTGRES_DB: mydatabase
+    volumes:
+      - './postgres:/var/lib/postgresql/data'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - './prometheus:/etc/prometheus'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SERVER_ROOT_URL=http://grafana.raspi-server.test/
+    volumes:
+      - './grafana:/var/lib/grafana'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    ports:
+      #- "8080:80"
+      - "80:80"
+    volumes:
+      - './nginx:/etc/nginx/conf.d'
+    networks:
+      - backend
+    restart: unless-stopped
+
+  website:
+    build: ./website
+    ports:
+      - "8000:80"
+    networks:
+      - backend
+    restart: unless-stopped
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - backend
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8082:8080"   # port 8082 di host ke 8080 container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - backend
+    restart: unless-stopped
+
+  dnscrypt-proxy:
+    image: zydou/dnscrypt:latest
+    container_name: dnscrypt-proxy
+    ports:
+      - "54:5053/udp"  # << gunakan port non-53
+    volumes:
+      - ./dnscrypt-proxy:/config
+    command: ["dnscrypt-proxy", "-config", "/config/dnscrypt-proxy.toml"]
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,9 @@
+# Folder
+csv/
+data/
+pdf/
+plugins/
+png/
+
+# File
+grafana.db
