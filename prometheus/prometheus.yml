@@ -33,3 +33,124 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
+
+
+  - job_name: 'snmp-mikrotik'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [mikrotik]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-if-mib'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [if_mib]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-system'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [system]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-mtrx'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [mtrx]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-hrDevice'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [hrDevice]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-hrSystem'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [hrSystem]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-hrSwRun'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [hrSwRun]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose
+
+  - job_name: 'snmp-hrStorage'
+    static_configs:
+      - targets:
+          - 192.168.40.1  # IP MikroTik Anda
+    metrics_path: /snmp
+    params:
+      module: [hrStorage]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp_exporter:9116  # Nama service di docker-compose

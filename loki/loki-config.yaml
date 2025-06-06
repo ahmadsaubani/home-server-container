@@ -1,0 +1,44 @@
+server:
+  http_listen_port: 3100
+  log_level: info
+
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+ingester:
+  chunk_idle_period: 5m
+  chunk_block_size: 262144
+  chunk_encoding: snappy
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      index:
+        period: 24h
+        prefix: index_
+      store: tsdb
+      schema: v13
+      object_store: filesystem
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+  filesystem:
+    directory: /loki/chunks
+
+limits_config:
+  max_streams_per_user: 10000
+
+ruler:
+  alertmanager_url: http://localhost:9093
+  rule_path: /loki/rules
+  enable_api: true
