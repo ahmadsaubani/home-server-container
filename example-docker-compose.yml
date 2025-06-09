@@ -3,6 +3,7 @@ version: '3.8'
 services:
   pihole:
     image: pihole/pihole:latest
+    hostname: raspi-server
     ports:
       - "53:53/tcp"
       - "53:53/udp"
@@ -11,9 +12,9 @@ services:
       - "443:443"
     environment:
       TZ: 'Asia/Jakarta'
-      WEBPASSWORD: 'your-password'
-      DNS1: 'dnscrypt-proxy#5053'
-      DNS2: '1.1.1.1'
+      FTLCONF_webserver_api_password: 'your-password'
+      WEBPASSWORD_FILE: 'your-password'
+      #FTLCONF_dns_upstreams: 'dnscrypt-proxy#5053;1.1.1.1'
     volumes:
       - './pihole/etc-pihole:/etc/pihole'
       - './pihole/etc-dnsmasq.d:/etc/dnsmasq.d'

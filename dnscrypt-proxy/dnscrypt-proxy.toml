@@ -29,7 +29,9 @@
 
 # server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 #server_names = ['cloudflare', 'quad9-dnscrypt', 'id-jakarta']
-
+#server_names = ['cloudflare', 'dns.sb', 'jp.tiar.app']
+#server_names = ['cloudflare','dnscry.pt-singapore02-ipv4', 'anon-cs-singapore', 'anon-tiarap', 'cs-singapore', 'dnscry.pt-anon-singapore02-ipv4', ]
+server_names = ['quad9-dnscrypt-ip4-nofilter-pri', 'dns4all-ipv4', 'cloudflare', 'controld-uncensored', 'adguard-dns-unfiltered', 'dnscry.pt-johor-ipv4']
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
 ## listen_addresses = ['127.0.0.1:53', '[::1]:53']
@@ -186,8 +188,9 @@ keepalive = 30
 ## 'random': Randomly choose from all servers.
 ## The response quality still depends on the server itself.
 #default wp2
-lb_strategy = 'p2' 
-
+lb_strategy = 'wp2'
+#lb_strategy = 'p2' 
+#lb_strategy = 'first'
 ## Set to `true` to constantly try to estimate the latency of all the resolvers
 ## and adjust the load-balancing parameters accordingly, or to `false` to disable.
 ## Default is `true` that makes 'p2' `lb_strategy` work well.

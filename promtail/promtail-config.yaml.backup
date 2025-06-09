@@ -30,5 +30,5 @@ scrape_configs:
         target_label: swarm_task
       - source_labels: [__meta_docker_container_label_com_docker_stack_namespace]
         target_label: stack_namespace
-#    pipeline_stages:
-#      - docker: {}
+    pipeline_stages:
+      - docker: {}
