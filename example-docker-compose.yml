@@ -42,11 +42,12 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: yourrootpassword
+      POSTGRES_PASSWORD: banzforever1
       POSTGRES_USER: root
       POSTGRES_DB: mydatabase
     volumes:
-      - './postgres:/var/lib/postgresql/data'
+      - './postgres/data:/var/lib/postgresql/data'
+      - './postgres/init:/docker-entrypoint-initdb.d'
     networks:
       - backend
     restart: unless-stopped
@@ -76,7 +77,6 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      #- "8080:80"
       - "80:80"
     volumes:
       - './nginx:/etc/nginx/conf.d'
@@ -147,6 +147,22 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
+    networks:
+      - backend
+    restart: unless-stopped
+
+  kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_ENGINE=root
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_NAME=uptimekuma
+      - DB_USER=root
+      - DB_PASSWORD=banzforever1
     networks:
       - backend
     restart: unless-stopped
