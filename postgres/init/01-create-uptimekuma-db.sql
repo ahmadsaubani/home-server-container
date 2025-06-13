@@ -1,0 +1,2 @@
+CREATE DATABASE uptimekuma;
+GRANT ALL PRIVILEGES ON DATABASE uptimekuma TO root;
