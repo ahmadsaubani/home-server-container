@@ -1,23 +1,32 @@
+#################################################
+#                                               #
+#            DOCKER-COMPOSE SETUP                #
+#                                               #
+#           Maintainer: Ahmad Saubani           #
+#          https://github.com/ahmadsaubani      #
+#                                               #
+#################################################
+
+
 version: '3.8'
 
 services:
   pihole:
     image: pihole/pihole:latest
-    hostname: raspi-server
+    hostname: raspi-server #replace with your hostname (optional)
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      #- "80:8080"
       - "8081:8080"
       - "443:443"
     environment:
       TZ: 'Asia/Jakarta'
-      FTLCONF_webserver_api_password: 'your-password'
-      WEBPASSWORD_FILE: 'your-password'
-      #FTLCONF_dns_upstreams: 'dnscrypt-proxy#5053;1.1.1.1'
+      FTLCONF_webserver_api_password: 'yourpassword'
+      WEBPASSWORD_FILE: 'yourpassword'
     volumes:
       - './pihole/etc-pihole:/etc/pihole'
       - './pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+      - './pihole/logs:/var/log/pihole'
     networks:
       - backend
     restart: unless-stopped
@@ -27,12 +36,14 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: yourrootpassword
+      MYSQL_ROOT_PASSWORD: yourpassword
       MYSQL_DATABASE: mydatabase
-      MYSQL_USER: ahmadsaubani
-      MYSQL_PASSWORD: youruserpassword
+      MYSQL_USER: youruser
+      MYSQL_PASSWORD: yourpassword
     volumes:
       - './mysql:/var/lib/mysql'
+      - './mysql/logs:/var/log/mysql'
+      - './mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf:ro'
     networks:
       - backend
     restart: unless-stopped
@@ -42,12 +53,15 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: root
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_USER: youruser
       POSTGRES_DB: mydatabase
     volumes:
       - './postgres/data:/var/lib/postgresql/data'
       - './postgres/init:/docker-entrypoint-initdb.d'
+      - './postgres/logs:/var/log/postgresql'
+      - './postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro'
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - backend
     restart: unless-stopped
@@ -67,7 +81,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SERVER_ROOT_URL=http://grafana.raspi-server.test/
+      - GF_SERVER_ROOT_URL=http://grafana.raspi-server.test/ #replace it with your domain
     volumes:
       - './grafana:/var/lib/grafana'
     networks:
@@ -80,6 +94,7 @@ services:
       - "80:80"
     volumes:
       - './nginx:/etc/nginx/conf.d'
+      - './nginx/logs:/var/log/nginx'
     networks:
       - backend
     restart: unless-stopped
@@ -100,6 +115,18 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+    networks:
+      - backend
+    restart: unless-stopped
+
+  snmp_exporter:
+    image: prom/snmp-exporter:latest
+    ports:
+      - "9116:9116"
+    volumes:
+      - ./snmp:/etc/snmp_exporter  # konfigurasi SNMP
+    command:
+      - "--config.file=/etc/snmp_exporter/snmp.yml"
     networks:
       - backend
     restart: unless-stopped
@@ -134,6 +161,10 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/loki-config.yaml
     volumes:
+      - ./loki/chunks:/loki/chunks
+      - ./loki/index:/loki/index
+      - ./loki/cache:/loki/cache
+      - ./loki/rules:/loki/rules
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
     networks:
       - backend
@@ -146,12 +177,16 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - ./nginx/logs:/docker/nginx/logs:ro
+      - ./pihole/logs:/docker/pihole/logs:ro
+      - ./mysql/logs:/docker/mysql/logs:ro
+      - ./postgres/logs:/docker/postgresql/logs:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
     networks:
       - backend
     restart: unless-stopped
 
-   kuma:
+  kuma:
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     ports:
@@ -161,8 +196,8 @@ services:
       - DB_HOST=postgresql
       - DB_PORT=5432
       - DB_NAME=uptimekuma
-      - DB_USER=user
-      - DB_PASSWORD=password
+      - DB_USER=youruser
+      - DB_PASSWORD=yourpassword
     volumes:
       - ./uptime-kuma:/app/data
     networks:
